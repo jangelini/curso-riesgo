@@ -56,4 +56,4 @@ if __name__=='__main__':
         how="left", left_on=INDEX, right_on=INDEX, sort="True"
     )
     
-    appl_bureau.to_dense().to_parquet(os.path.join(DATA_PATH, 'full_train_pandas.csv'))
+    appl_bureau.to_dense().to_parquet(os.path.join(DATA_PATH, 'full_train_pandas.parquet'))
