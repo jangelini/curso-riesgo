@@ -1,3 +1,8 @@
 *.ipynb
 .ipynb_checkpoints
 *.csv
+*.parquet*
+__pycache__/
+AutogluonModels/
+*SUCCESS*
+*.crc

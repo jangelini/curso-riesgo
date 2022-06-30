@@ -7,12 +7,14 @@ Created on Wed Jun  1 19:47:08 2022
 
 #Clase I
 
-import pandas as pd
+import os
 
+import pandas as pd
 import numpy as np
 
+DATA_PATH = 'data'
 
-appl = pd.read_csv('C:/Users/Nora/Desktop/curso_untref/curso_riesgo2/home-credit-default-risk/application_train.csv')
+appl = pd.read_csv(os.path.join(DATA_PATH, 'application_train.csv'))
 
 bureau =  pd.read_csv('C:/Users/Nora/Desktop/curso_untref/curso_riesgo2/home-credit-default-risk/bureau.csv')
 
@@ -22,9 +24,9 @@ card_balance =  pd.read_csv( 'C:/Users/Nora/Desktop/curso_untref/curso_riesgo2/h
 
 installments = pd.read_csv ('C:/Users/Nora/Desktop/curso_untref/curso_riesgo2/home-credit-default-risk/installments_payments.csv')
 
-prev =  pd.read_csv ('C:/Users/Nora/Desktop/curso_untref/curso_riesgo2/home-credit-default-risk/previous_application.csv')
+prev =  pd.read_csv('C:/Users/Nora/Desktop/curso_untref/curso_riesgo2/home-credit-default-risk/previous_application.csv')
 
-pos_cash = pd.read_csv ('C:/Users/Nora/Desktop/curso_untref/curso_riesgo2/home-credit-default-risk/POS_CASH_balance.csv')
+pos_cash = pd.read_csv('C:/Users/Nora/Desktop/curso_untref/curso_riesgo2/home-credit-default-risk/POS_CASH_balance.csv')
 
 
 #para guardar un dataframe
@@ -209,16 +211,16 @@ bureau_balance['STATUS_2']=np.where(bureau_balance['STATUS']=="0", 0,
 
 
 
-bureau_balance=pd.get_dummies(bureau_balance, columns=['STATUS'], prefix_sep="_*_")
+bureau_balance   = pd.get_dummies(bureau_balance, columns=['STATUS'], prefix_sep="_*_")
 
-bureau_balance_1=bureau_balance.drop(['MONTHS_BALANCE'], axis=1)
+bureau_balance_1 = bureau_balance.drop(['MONTHS_BALANCE'], axis=1)
 
 
-bureau_merge=bureau[['SK_ID_CURR', 'SK_ID_BUREAU']]
-bureau_balance_2=bureau_balance_1.merge(bureau_merge, how='left', left_on=['SK_ID_BUREAU'], right_on=['SK_ID_BUREAU'], sort="True")
-bureau_balance_3=bureau_balance_2.drop(['SK_ID_BUREAU'], axis=1)
-bureau_balance_4=bureau_balance_3.groupby(["SK_ID_CURR"]).sum()
-bureau_balance_5=bureau_balance_4.reset_index()
+bureau_merge     = bureau[['SK_ID_CURR', 'SK_ID_BUREAU']]
+bureau_balance_2 = bureau_balance_1.merge(bureau_merge, how='left', left_on=['SK_ID_BUREAU'], right_on=['SK_ID_BUREAU'], sort="True")
+bureau_balance_3 = bureau_balance_2.drop(['SK_ID_BUREAU'], axis=1)
+bureau_balance_4 = bureau_balance_3.groupby(["SK_ID_CURR"]).sum()
+bureau_balance_5 = bureau_balance_4.reset_index()
 
 appl9=appl8.merge(bureau_balance_5, how="left", left_on=["SK_ID_CURR"], right_on=["SK_ID_CURR"], sort="True")
 
@@ -359,7 +361,3 @@ model1.fit(x_train, y_train)
 coef1=pd.DataFrame(model1.coef_).T
 
 coef1['col']=pd.DataFrame(x_train.columns)
-
-
-
-
