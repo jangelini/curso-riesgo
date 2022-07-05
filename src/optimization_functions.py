@@ -55,15 +55,15 @@ def instantiate_imputer(trial : Trial) -> SimpleImputer:
 
 def instantiate_lgbm(trial : Trial) -> LGBMClassifier:
  
-    max_depth    : int = trial.suggest_int('max_depth', 2, 300)
+    max_depth    : int = trial.suggest_int('max_depth', 2, 100)
     n_estimators : int = trial.suggest_int('n_estimators', 5, 3000)
 
     params : Dict[str, Union[str, Number]] = {
-        'boosting_type': trial.suggest_categorical('boosting_type', ['rf', 'gbdt', 'dart', 'goss']),
-        'num_leaves': trial.suggest_int('num_leaves', 2, min(2**17 - 1, 2**max_depth - 1)),
+        'boosting_type': trial.suggest_categorical('boosting_type', ['rf', 'gbdt', 'dart']),
+        'num_leaves': trial.suggest_int('num_leaves', 2, min(2**17 - 1, 2**max_depth - 1), log=True),
         'learning_rate': trial.suggest_loguniform('learning_rate', 1e-7, 0.01),
         'min_split_gain': trial.suggest_float('min_split_gain', 0, 10),
-        'min_child_samples': trial.suggest_int('min_child_samples', 1, 15000, log=True),
+        'min_child_samples': trial.suggest_int('min_child_samples', 100, 15000, log=True),
         'subsample': trial.suggest_float('subsample', 0, 1),
         'subsample_freq': trial.suggest_int('subsample_freq', 1, n_estimators),
         'colsample_bytree': trial.suggest_float('colsample_bytree', 0.01, 1),
