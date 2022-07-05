@@ -1,6 +1,10 @@
-from typing import Callable, Union
+from json import encoder
+from typing import Any, Callable, Dict, Union
+from category_encoders import CatBoostEncoder
+from lightgbm import LGBMClassifier
 
 import numpy as np
+from optuna import Trial
 from scipy.stats import ks_2samp
 
 from sklearn.metrics import make_scorer
@@ -27,3 +31,33 @@ def ks(y_true : DataArray, y_pred : DataArray) -> float:
     return result
 
 ks_score : Callable[[np.ndarray, np.ndarray], float] = make_scorer(ks, needs_proba=True)
+
+def instantiate_catencoder(trial : Trial) -> CatBoostEncoder:
+
+    sigma : float = trial.suggest_float('sigma', 1e-5, 20)
+    a     : float = trial.suggest_float('a', 0.1, 20)
+    
+    encoder = CatBoostEncoder(handle_missing='return_nan', handle_unknown='unknown', return_df=False, sigma=sigma, a=a)
+    return encoder
+
+def instantiate_lgbm(trial : Trial) -> LGBMClassifier:
+
+    max_depth = trial.suggest_int('max_depth', 2, 300)
+    n_estimators = trial.suggest_int('n_estimators', 5, 3000)
+
+    params : Dict[str, Any] = {
+        'boosting_type': trial.suggest_categorical('boosting_type', ['rf', 'gbdt', 'dart', 'goss']),
+        'num_leaves': trial.suggest_int('num_leaves', 2, 2**max_depth - 1),
+        'learning_rate': trial.suggest_loguniform('learning_rate', 1e-7, 0.01),
+        'min_split_gain': trial.suggest_float('min_split_gain', 0, 10),
+        'min_child_samples': trial.suggest_int('min_child_samples', 1, 15000),
+        'subsample': trial.suggest_float('subsample', 0, 1),
+        'subsample_freq': trial.suggest_int('subsample_freq', 1, n_estimators),
+        'colsample_bytree': trial.suggest_float('colsample_bytree', 0.01, 1),
+        'reg_alpha': trial.suggest_float('reg_alpha', 0, 100),
+        'reg_lambda': trial.suggest_float('reg_lambda', 0, 100)
+    } | {'n_estimators': n_estimators, 'max_depth': max_depth, 'random_state': 42}
+
+    model = LGBMClassifier(**params)
+    
+    return model
