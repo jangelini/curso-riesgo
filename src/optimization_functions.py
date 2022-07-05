@@ -1,12 +1,15 @@
-from ast import Call
-from typing import Callable
+from typing import Callable, Union
 
 import numpy as np
 from scipy.stats import ks_2samp
 
 from sklearn.metrics import make_scorer
 
-def ks(y_true : np.ndarray, y_pred : np.ndarray) -> float:
+from pandas import DataFrame, Series
+
+DataArray = Union[np.ndarray, Series, DataFrame]
+
+def ks(y_true : DataArray, y_pred : DataArray) -> float:
     """
     This function calculates the Kolmogorov-Smirnov statistic between two classes in a binary classifier.
 
@@ -17,6 +20,7 @@ def ks(y_true : np.ndarray, y_pred : np.ndarray) -> float:
     Returns:
         float: The K-S statistic.
     """
+
     class0 = y_pred[y_true == 0]
     class1 = y_pred[y_true == 1]
     result = ks_2samp(class0, class1).statistic
