@@ -28,5 +28,10 @@ def optimize(trial : Trial, x, y):
     reg_lambda = trial.suggest_float('reg_lambda', 0, 100)
     random_state = 42
 
-    lgbm = LGBMClassifier(boosting_type, num_leaves, max_depth, learning_rate, n_estimators, min_split_gain=min_split_gain,
-    ... )
+    lgbm = LGBMClassifier(boosting_type, 
+                          num_leaves,
+                          max_depth,
+                          learning_rate,
+                          n_estimators,
+                          min_split_gain=min_split_gain,
+. )
