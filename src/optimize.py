@@ -1,4 +1,5 @@
 from argparse import ArgumentParser
+from typing import List
 
 import pandas as pd
 import numpy as np
@@ -8,9 +9,9 @@ from lightgbm import LGBMClassifier
 from optuna import create_study
 from optuna.samplers import TPESampler
 from optuna import Trial
-from sklearn.impute import SimpleImputer
 
-from sklearn.model_selection import StratifiedKFold, cross_val_score
+from sklearn.impute import SimpleImputer
+from sklearn.model_selection import StratifiedKFold, cross_val_score, train_test_split
 from sklearn.compose import ColumnTransformer
 
 from category_encoders import CatBoostEncoder
@@ -24,7 +25,7 @@ parser = ArgumentParser(description='Read, process and save the datasets.')
 #parser.add_argument('--index', help='The name of the index column.')
 args = parser.parse_args()
 
-def optimize(trial : Trial, x, y, numerical_features, categorical_features) -> float:
+def objective(trial : Trial, x, y, numerical_features : List[str], categorical_features : List[str]) -> float:
 
     encoder : CatBoostEncoder = instantiate_catencoder(trial)
     imputer : SimpleImputer   = instantiate_imputer(trial)
@@ -44,3 +45,22 @@ def optimize(trial : Trial, x, y, numerical_features, categorical_features) -> f
 
     scores : float = cross_val_score(pipeline, x, y, scoring=ks_score, cv=folds)
     return np.mean(scores)
+
+if __name__=='__main__':
+
+    data    = pd.read_parquet('../data/full_train_pandas.parquet')
+
+    index  : List[str] = ['SK_ID_CURR']
+    target : List[str] = ['TARGET']
+
+    categorical_columns : List[str] = [column for column, dtype in data.dtypes.to_dict().items() if dtype==np.object_ and column not in index+target]
+    numerical_columns   : List[str] = [column for column in data.columns if column not in index+target+categorical_columns]
+
+    x_train, x_test, y_train, y_test = train_test_split(data.drop(index+target, axis=1), data.TARGET, random_state=42)
+
+    sampler = TPESampler(n_startup_trials=200, seed=42)
+    study   = create_study(storage='optimization.db', direction='maximize')
+
+    study.optimize(lambda trial: objective(trial, x_train, y_train, numerical_columns, categorical_columns),
+                   n_trials=3000
+    )

@@ -44,7 +44,7 @@ def instantiate_catencoder(trial : Trial) -> CatBoostEncoder:
 def instantiate_imputer(trial : Trial) -> SimpleImputer:
     fill_value = None
 
-    strategy : str = trial.suggest_categorical('strategy', ['mean', 'median', 'most_frequent', 'constant'])
+    strategy      : str  = trial.suggest_categorical('strategy', ['mean', 'median', 'most_frequent', 'constant'])
     add_indicator : bool = trial.suggest_categorical('add_indicator', [True, False])
     
     if strategy=='constant':
