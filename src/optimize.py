@@ -20,10 +20,10 @@ from sklearn.pipeline import Pipeline
 from optimization_functions import instantiate_catencoder, instantiate_imputer, instantiate_lgbm, ks_score
 
 # Esto permite pasarle argumentos cuando corremos la función en la terminal
-parser = ArgumentParser(description='Read, process and save the datasets.')
+# parser = ArgumentParser(description='Read, process and save the datasets.')
 #parser.add_argument('--data', type=str, help='The path of the directory containing the data.')
 #parser.add_argument('--index', help='The name of the index column.')
-args = parser.parse_args()
+# args = parser.parse_args()
 
 def objective(trial : Trial, x, y, numerical_features : List[str], categorical_features : List[str]) -> float:
 
@@ -34,7 +34,7 @@ def objective(trial : Trial, x, y, numerical_features : List[str], categorical_f
     folds : StratifiedKFold = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
 
     preprocessor = ColumnTransformer([
-        ('imputer', imputer, numerical_features)
+        ('imputer', imputer, numerical_features),
         ('categorical_encoder', encoder, categorical_features)
     ])
 
@@ -59,7 +59,7 @@ if __name__=='__main__':
     x_train, x_test, y_train, y_test = train_test_split(data.drop(index+target, axis=1), data.TARGET, random_state=42)
 
     sampler = TPESampler(n_startup_trials=200, seed=42)
-    study   = create_study(storage='optimization.db', direction='maximize')
+    study   = create_study(storage='sqlite:///optimization.sqlite', direction='maximize', study_name='optimizacion_riesgo')
 
     study.optimize(lambda trial: objective(trial, x_train, y_train, numerical_columns, categorical_columns),
                    n_trials=3000

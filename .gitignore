@@ -7,3 +7,4 @@ AutogluonModels/
 *SUCCESS*
 *.crc
 .DS_Store
+*.sqlite
