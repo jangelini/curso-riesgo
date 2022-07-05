@@ -1,4 +1,3 @@
-from json import encoder
 from typing import Any, Callable, Dict, Union
 from category_encoders import CatBoostEncoder
 from lightgbm import LGBMClassifier
@@ -12,6 +11,7 @@ from sklearn.metrics import make_scorer
 from pandas import DataFrame, Series
 
 DataArray = Union[np.ndarray, Series, DataFrame]
+Number    = Union[float, str]
 
 def ks(y_true : DataArray, y_pred : DataArray) -> float:
     """
@@ -36,16 +36,16 @@ def instantiate_catencoder(trial : Trial) -> CatBoostEncoder:
 
     sigma : float = trial.suggest_float('sigma', 1e-5, 20)
     a     : float = trial.suggest_float('a', 0.1, 20)
-    
+
     encoder = CatBoostEncoder(handle_missing='return_nan', handle_unknown='unknown', return_df=False, sigma=sigma, a=a)
     return encoder
 
 def instantiate_lgbm(trial : Trial) -> LGBMClassifier:
 
-    max_depth = trial.suggest_int('max_depth', 2, 300)
-    n_estimators = trial.suggest_int('n_estimators', 5, 3000)
+    max_depth    : int = trial.suggest_int('max_depth', 2, 300)
+    n_estimators : int = trial.suggest_int('n_estimators', 5, 3000)
 
-    params : Dict[str, Any] = {
+    params : Dict[str, Union[str, Number]] = {
         'boosting_type': trial.suggest_categorical('boosting_type', ['rf', 'gbdt', 'dart', 'goss']),
         'num_leaves': trial.suggest_int('num_leaves', 2, 2**max_depth - 1),
         'learning_rate': trial.suggest_loguniform('learning_rate', 1e-7, 0.01),
