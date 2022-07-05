@@ -8,7 +8,6 @@ from lightgbm import LGBMClassifier
 from optuna import create_study
 from optuna.samplers import TPESampler
 from optuna import Trial
-from sklearn import impute
 from sklearn.impute import SimpleImputer
 
 from sklearn.model_selection import StratifiedKFold, cross_val_score
@@ -17,7 +16,7 @@ from sklearn.compose import ColumnTransformer
 from category_encoders import CatBoostEncoder
 from sklearn.pipeline import Pipeline
 
-from optimization_functions import instantiate_catencoder, instantiate_lgbm
+from optimization_functions import instantiate_catencoder, instantiate_imputer, instantiate_lgbm, ks_score
 
 # Esto permite pasarle argumentos cuando corremos la función en la terminal
 parser = ArgumentParser(description='Read, process and save the datasets.')
@@ -28,10 +27,10 @@ args = parser.parse_args()
 def optimize(trial : Trial, x, y, numerical_features, categorical_features) -> float:
 
     encoder : CatBoostEncoder = instantiate_catencoder(trial)
-    imputer : SimpleImputer   = SimpleImputer(strategy='constant', fill_value=-1)
+    imputer : SimpleImputer   = instantiate_imputer(trial)
     model   : LGBMClassifier  = instantiate_lgbm(trial)
     
-    folds = StratifiedKFold(shuffle=True, random_state=42)
+    folds : StratifiedKFold = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
 
     preprocessor = ColumnTransformer([
         ('imputer', imputer, numerical_features)
@@ -43,5 +42,5 @@ def optimize(trial : Trial, x, y, numerical_features, categorical_features) -> f
         ('model', model)
     ])
 
-    scores : float = cross_val_score()
-    return
+    scores : float = cross_val_score(pipeline, x, y, scoring=ks_score, cv=folds)
+    return np.mean(scores)

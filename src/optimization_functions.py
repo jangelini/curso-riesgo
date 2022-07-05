@@ -5,6 +5,7 @@ from lightgbm import LGBMClassifier
 import numpy as np
 from optuna import Trial
 from scipy.stats import ks_2samp
+from sklearn.impute import SimpleImputer
 
 from sklearn.metrics import make_scorer
 
@@ -40,6 +41,18 @@ def instantiate_catencoder(trial : Trial) -> CatBoostEncoder:
     encoder : CatBoostEncoder = CatBoostEncoder(handle_missing='return_nan', handle_unknown='unknown', return_df=False, sigma=sigma, a=a)
     return encoder
 
+def instantiate_imputer(trial : Trial) -> SimpleImputer:
+    fill_value = None
+
+    strategy : str = trial.suggest_categorical('strategy', ['mean', 'median', 'most_frequent', 'constant'])
+    add_indicator : bool = trial.suggest_categorical('add_indicator', [True, False])
+    
+    if strategy=='constant':
+        fill_value = -1
+    
+    imputer = SimpleImputer(strategy=strategy, add_indicator=add_indicator, fill_value=fill_value)
+    return imputer
+
 def instantiate_lgbm(trial : Trial) -> LGBMClassifier:
  
     max_depth    : int = trial.suggest_int('max_depth', 2, 300)
@@ -50,7 +63,7 @@ def instantiate_lgbm(trial : Trial) -> LGBMClassifier:
         'num_leaves': trial.suggest_int('num_leaves', 2, 2**max_depth - 1),
         'learning_rate': trial.suggest_loguniform('learning_rate', 1e-7, 0.01),
         'min_split_gain': trial.suggest_float('min_split_gain', 0, 10),
-        'min_child_samples': trial.suggest_int('min_child_samples', 1, 15000),
+        'min_child_samples': trial.suggest_int('min_child_samples', 1, 15000, log=True),
         'subsample': trial.suggest_float('subsample', 0, 1),
         'subsample_freq': trial.suggest_int('subsample_freq', 1, n_estimators),
         'colsample_bytree': trial.suggest_float('colsample_bytree', 0.01, 1),
