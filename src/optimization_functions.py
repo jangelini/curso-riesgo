@@ -25,9 +25,9 @@ def ks(y_true : DataArray, y_pred : DataArray) -> float:
         float: The K-S statistic.
     """
 
-    class0 = y_pred[y_true == 0]
-    class1 = y_pred[y_true == 1]
-    result = ks_2samp(class0, class1).statistic
+    class0 : np.ndarray = y_pred[y_true == 0]
+    class1 : np.ndarray = y_pred[y_true == 1]
+    result : float      = ks_2samp(class0, class1).statistic
     return result
 
 ks_score : Callable[[np.ndarray, np.ndarray], float] = make_scorer(ks, needs_proba=True)
@@ -37,11 +37,11 @@ def instantiate_catencoder(trial : Trial) -> CatBoostEncoder:
     sigma : float = trial.suggest_float('sigma', 1e-5, 20)
     a     : float = trial.suggest_float('a', 0.1, 20)
 
-    encoder = CatBoostEncoder(handle_missing='return_nan', handle_unknown='unknown', return_df=False, sigma=sigma, a=a)
+    encoder : CatBoostEncoder = CatBoostEncoder(handle_missing='return_nan', handle_unknown='unknown', return_df=False, sigma=sigma, a=a)
     return encoder
 
 def instantiate_lgbm(trial : Trial) -> LGBMClassifier:
-
+ 
     max_depth    : int = trial.suggest_int('max_depth', 2, 300)
     n_estimators : int = trial.suggest_int('n_estimators', 5, 3000)
 
@@ -58,6 +58,6 @@ def instantiate_lgbm(trial : Trial) -> LGBMClassifier:
         'reg_lambda': trial.suggest_float('reg_lambda', 0, 100)
     } | {'n_estimators': n_estimators, 'max_depth': max_depth, 'random_state': 42}
 
-    model = LGBMClassifier(**params)
+    model : LGBMClassifier = LGBMClassifier(**params)
     
     return model
