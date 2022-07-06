@@ -46,7 +46,11 @@ if __name__=='__main__':
     )
     
     bureau_balance_clean = (bureau_balance.drop('MONTHS_BALANCE', axis=1)
-                                          .merge(bureau[INDEX + ['SK_ID_BUREAU']], how='left', left_on=['SK_ID_BUREAU'], right_on=['SK_ID_BUREAU'], sort="True")
+                                          .merge(bureau[INDEX + ['SK_ID_BUREAU']],
+                                                 how='left',
+                                                 left_on=['SK_ID_BUREAU'],
+                                                 right_on=['SK_ID_BUREAU'],
+                                                 sort="True")
                                           .pipe(pd.get_dummies, columns=['STATUS'], prefix_sep="_", sparse=True)
                                           .groupby(INDEX).sum()
                                           .reset_index())

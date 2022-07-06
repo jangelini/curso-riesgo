@@ -9,3 +9,4 @@ AutogluonModels/
 .DS_Store
 *.sqlite
 *.out
+AutogluonModels/

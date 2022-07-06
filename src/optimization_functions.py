@@ -12,7 +12,7 @@ from sklearn.metrics import make_scorer
 from pandas import DataFrame, Series
 
 DataArray = Union[np.ndarray, Series, DataFrame]
-Number    = Union[float, str]
+Number    = Union[float, int]
 
 def ks(y_true : DataArray, y_pred : DataArray) -> float:
     """
@@ -38,7 +38,10 @@ def instantiate_catencoder(trial : Trial) -> CatBoostEncoder:
     sigma : float = trial.suggest_float('sigma', 1e-5, 20)
     a     : float = trial.suggest_float('a', 0.1, 20)
 
-    encoder : CatBoostEncoder = CatBoostEncoder(handle_missing='return_nan', handle_unknown='unknown', return_df=False, sigma=sigma, a=a)
+    encoder : CatBoostEncoder = CatBoostEncoder(handle_missing='return_nan',
+                                                handle_unknown='unknown',
+                                                return_df=False,
+                                                sigma=sigma, a=a)
     return encoder
 
 def instantiate_imputer(trial : Trial) -> SimpleImputer:
