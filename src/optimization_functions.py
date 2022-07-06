@@ -1,4 +1,5 @@
 from typing import Any, Callable, Dict, Union
+from unicodedata import name
 from category_encoders import CatBoostEncoder
 from lightgbm import LGBMClassifier
 
@@ -31,7 +32,7 @@ def ks(y_true : DataArray, y_pred : DataArray) -> float:
     result : float      = ks_2samp(class0, class1).statistic
     return result
 
-ks_score : Callable[[np.ndarray, np.ndarray], float] = make_scorer(ks, needs_proba=True)
+ks_score : Callable[[np.ndarray, np.ndarray], float] = make_scorer(score_func=ks, needs_proba=True, name='ks', greater_is_better=True)
 
 def instantiate_catencoder(trial : Trial) -> CatBoostEncoder:
 
