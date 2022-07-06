@@ -8,3 +8,4 @@ AutogluonModels/
 *.crc
 .DS_Store
 *.sqlite
+*.out

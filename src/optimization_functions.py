@@ -56,7 +56,7 @@ def instantiate_imputer(trial : Trial) -> SimpleImputer:
 def instantiate_lgbm(trial : Trial) -> LGBMClassifier:
  
     max_depth    : int = trial.suggest_int('max_depth', 2, 100)
-    n_estimators : int = trial.suggest_int('n_estimators', 5, 3000)
+    n_estimators : int = trial.suggest_int('n_estimators', 5, 1500)
 
     params : Dict[str, Union[str, Number]] = {
         'boosting_type': trial.suggest_categorical('boosting_type', ['rf', 'gbdt', 'dart']),

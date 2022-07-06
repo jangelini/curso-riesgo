@@ -7,9 +7,8 @@ import numpy as np
 
 from lightgbm import LGBMClassifier
 
-from optuna import create_study, load_study
+from optuna import create_study, load_study, Trial
 from optuna.samplers import TPESampler
-from optuna import Trial
 
 from sklearn.impute import SimpleImputer
 from sklearn.model_selection import StratifiedKFold, cross_val_score, train_test_split
@@ -32,7 +31,7 @@ def objective(trial : Trial, x, y, numerical_features : List[str], categorical_f
     imputer : SimpleImputer   = instantiate_imputer(trial)
     model   : LGBMClassifier  = instantiate_lgbm(trial)
     
-    folds : StratifiedKFold = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+    folds : StratifiedKFold = StratifiedKFold(n_splits=3, shuffle=True, random_state=42)
 
     preprocessor = ColumnTransformer([
         ('imputer', imputer, numerical_features),
