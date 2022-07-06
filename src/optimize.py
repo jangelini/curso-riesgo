@@ -1,12 +1,13 @@
 from argparse import ArgumentParser
 from typing import List
+import os
 
 import pandas as pd
 import numpy as np
 
 from lightgbm import LGBMClassifier
 
-from optuna import create_study
+from optuna import create_study, load_study
 from optuna.samplers import TPESampler
 from optuna import Trial
 
@@ -59,7 +60,11 @@ if __name__=='__main__':
     x_train, x_test, y_train, y_test = train_test_split(data.drop(index+target, axis=1), data.TARGET, random_state=42)
 
     sampler = TPESampler(n_startup_trials=200, seed=42)
-    study   = create_study(storage='sqlite:///optimization.sqlite', direction='maximize', study_name='optimizacion_riesgo')
+
+    if os.path.isfile('optimization.sqlite'):
+        study = load_study(study_name='optimizacion_riesgo', storage='sqlite:///optimization.sqlite', sampler=sampler)
+    else:
+        study = create_study(storage='sqlite:///optimization.sqlite', direction='maximize', study_name='optimizacion_riesgo')
 
     study.optimize(lambda trial: objective(trial, x_train, y_train, numerical_columns, categorical_columns),
                    n_trials=3000

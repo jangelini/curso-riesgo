@@ -60,7 +60,7 @@ def instantiate_lgbm(trial : Trial) -> LGBMClassifier:
 
     params : Dict[str, Union[str, Number]] = {
         'boosting_type': trial.suggest_categorical('boosting_type', ['rf', 'gbdt', 'dart']),
-        'num_leaves': trial.suggest_int('num_leaves', 2, min(2**17 - 1, 2**max_depth - 1), log=True),
+        'num_leaves': trial.suggest_int('num_leaves', 2, min(2**14 - 1, 2**max_depth - 1), log=True), # max allowed value is 2**17 - 1
         'learning_rate': trial.suggest_loguniform('learning_rate', 1e-7, 0.01),
         'min_split_gain': trial.suggest_float('min_split_gain', 0, 10),
         'min_child_samples': trial.suggest_int('min_child_samples', 100, 15000, log=True),
